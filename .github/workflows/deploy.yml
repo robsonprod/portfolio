@@ -88,6 +88,8 @@ jobs:
         env:
           BUCKET: s3://${{ steps.tf.outputs.bucket }}
         run: |
+          # index.csr.html: fallback client-side do Angular, inútil com todas as rotas pré-renderizadas.
+          rm -f site/index.csr.html
           aws s3 sync site "$BUCKET" --exclude "*.html" --cache-control "public,max-age=31536000,immutable"
           aws s3 sync site "$BUCKET" --exclude "*" --include "*.html" --cache-control "no-cache"
           aws s3 sync site "$BUCKET" --delete --size-only
