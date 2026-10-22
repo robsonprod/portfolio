@@ -1,0 +1,13 @@
+# Arquivos de estudo
+explicacao.md
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# Java
+**/target/
+**/build/

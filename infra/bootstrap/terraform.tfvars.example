@@ -1,0 +1,2 @@
+# Copie para terraform.tfvars (ignorado pelo git) e ajuste.
+github_repo = "SEU_USUARIO_GITHUB/portfolio"

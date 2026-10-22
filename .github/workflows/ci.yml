@@ -1,0 +1,89 @@
+# CI: roda em todo pull request. Nada é alterado na AWS (só leitura).
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend (test + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx ng test --watch=false
+      - run: npx ng build
+
+  specs:
+    name: OpenSpec (validate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      # Specs e changes são parte do contrato do projeto (SDD): formato inválido quebra o PR.
+      - run: npx -y @fission-ai/openspec@1.14.3 validate --all --strict --no-interactive
+
+  terraform:
+    name: Terraform (fmt + validate + plan)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # necessário para o OIDC
+    defaults:
+      run:
+        working-directory: infra/site
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.16.6
+          terraform_wrapper: false
+
+      - name: Format
+        run: terraform fmt -check -recursive ..
+
+      # PRs de forks não recebem token OIDC — o plan só roda para PRs do próprio repo.
+      - name: Configure AWS (role somente leitura)
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Init
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        run: terraform init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+
+      - name: Validate
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        run: terraform validate
+
+      # -lock=false: a role de plan não tem permissão de escrita no state (nem no lockfile).
+      - name: Plan
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          terraform plan -input=false -lock=false -no-color -out=tfplan
+          {
+            echo '### Terraform plan'
+            echo '```'
+            terraform show -no-color tfplan | tail -n 80
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
