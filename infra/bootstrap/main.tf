@@ -28,6 +28,12 @@ locals {
   state_bucket = "${var.project}-tfstate-${local.account_id}"
   # Prefixo dos recursos que o pipeline pode gerenciar (ex.: portfolio-site-123456789012)
   managed_prefix = "${var.project}-"
+
+  # Início do claim "sub" do token OIDC: formato imutável (com IDs) quando os IDs são informados.
+  repo_owner = split("/", var.github_repo)[0]
+  repo_name  = split("/", var.github_repo)[1]
+  use_ids    = var.github_owner_id != null && var.github_repo_id != null
+  sub_prefix = local.use_ids ? "repo:${local.repo_owner}@${var.github_owner_id}/${local.repo_name}@${var.github_repo_id}" : "repo:${var.github_repo}"
 }
 
 # ---------------------------------------------------------------------------
@@ -90,8 +96,8 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 # Quem pode assumir cada role. O "sub" do token identifica repo + contexto:
-#   PR:     repo:<owner>/<repo>:pull_request
-#   Deploy: repo:<owner>/<repo>:environment:production
+#   PR:     repo:<owner>[@id]/<repo>[@id]:pull_request
+#   Deploy: repo:<owner>[@id]/<repo>[@id]:environment:production
 data "aws_iam_policy_document" "trust_plan" {
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
@@ -107,7 +113,7 @@ data "aws_iam_policy_document" "trust_plan" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repo}:pull_request"]
+      values   = ["${local.sub_prefix}:pull_request"]
     }
   }
 }
@@ -127,7 +133,7 @@ data "aws_iam_policy_document" "trust_deploy" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repo}:environment:production"]
+      values   = ["${local.sub_prefix}:environment:production"]
     }
   }
 }
