@@ -1,0 +1,117 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  view-transition-name: site-header; // fica parado durante a transição de página
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter: saturate(160%) blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 64px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+
+  a:not(.btn) {
+    position: relative;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.94rem;
+    font-weight: 500;
+    transition: color 0.2s, background 0.2s;
+
+    &:hover { color: var(--text); background: var(--surface-2); }
+    &.active { color: var(--text); }
+    &.active::after {
+      content: '';
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 2px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--gradient);
+    }
+  }
+}
+
+.nav__hire { margin-left: 8px; }
+
+.actions { display: flex; align-items: center; gap: 6px; }
+
+.lang {
+  width: auto;
+  padding: 0 10px;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.menu-btn { display: none; }
+
+@media (max-width: 760px) {
+  .menu-btn { display: inline-flex; }
+  .actions { margin-left: auto; }
+  .brand__name { display: none; }
+
+  .nav {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 12px 16px 20px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    transform: translateY(-8px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+
+    a:not(.btn) { padding: 12px; }
+    a.active::after { display: none; }
+    a.active { background: var(--surface-2); }
+  }
+
+  .nav__hire { margin: 8px 0 0; text-align: center; }
+
+  .open .nav {
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+  }
+}

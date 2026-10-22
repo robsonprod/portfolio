@@ -1,0 +1,326 @@
+/* =========================================================
+   Tokens de tema
+   O tema é definido por [data-theme] no <html> (theme-init.js).
+   Sem JS, cai no prefers-color-scheme do sistema.
+   ========================================================= */
+@mixin light {
+  --bg: #fafafb;
+  --surface: #ffffff;
+  --surface-2: #f1f2f6;
+  --text: #0f1222;
+  --muted: #5b6275;
+  --border: #e5e7ef;
+  --danger: #dc2626;
+  --grid-line: rgb(15 18 34 / 0.05);
+  --blob-opacity: 0.22;
+  --shadow: 0 10px 30px -12px rgb(15 18 34 / 0.18);
+  color-scheme: light;
+}
+
+@mixin dark {
+  --bg: #08090f;
+  --surface: #11131c;
+  --surface-2: #1a1d29;
+  --text: #ecedf3;
+  --muted: #9ba1b4;
+  --border: #23263a;
+  --danger: #f87171;
+  --grid-line: rgb(255 255 255 / 0.04);
+  --blob-opacity: 0.32;
+  --shadow: 0 10px 30px -12px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+:root {
+  --gradient: linear-gradient(120deg, #6366f1 0%, #8b5cf6 45%, #22d3ee 100%);
+  --radius: 16px;
+  --font: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  @include light;
+}
+
+[data-theme='dark'] { @include dark; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) { @include dark; }
+}
+
+/* =========================================================
+   Base
+   ========================================================= */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.65 var(--font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+app-root { display: contents; }
+
+h1, h2, h3 { margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.02em; }
+h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); letter-spacing: -0.035em; }
+h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+a { color: inherit; }
+::selection { background: #6366f1; color: #fff; }
+
+:focus-visible { outline: 2px solid #8b5cf6; outline-offset: 3px; border-radius: 6px; }
+
+.container { width: 100%; max-width: 1140px; margin: 0 auto; padding-inline: 20px; }
+.page { flex: 1; view-transition-name: page; }
+.section { padding: clamp(56px, 8vw, 96px) 0; }
+.section--tight { padding: 24px 0 48px; }
+.page-hero { padding-top: clamp(40px, 6vw, 72px); }
+.muted { color: var(--muted); }
+.small { font-size: 0.875rem; }
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 100;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--bg);
+  &:focus { top: 12px; }
+}
+
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.section-head {
+  max-width: 680px;
+  margin-bottom: 48px;
+  p:last-child { margin: 0; font-size: 1.08rem; }
+}
+
+/* =========================================================
+   Ícones
+   ========================================================= */
+.icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--icon-size, 20px);
+  height: var(--icon-size, 20px);
+  svg { width: 100%; height: 100%; }
+}
+
+// Sol/lua escolhidos por CSS: o HTML é o mesmo no servidor e no navegador (sem conflito de hidratação).
+[data-theme='dark'] .show-light,
+:root:not([data-theme='dark']) .show-dark { display: none; }
+
+/* =========================================================
+   Botões
+   ========================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+  --icon-size: 18px;
+
+  &:hover { transform: translateY(-2px); }
+  &:active { transform: translateY(0); }
+  &:disabled { opacity: 0.6; cursor: wait; transform: none; }
+  .icon { transition: transform 0.2s; }
+  &:hover .icon { transform: translateX(3px); }
+}
+
+.btn--sm { padding: 7px 14px; font-size: 0.9rem; }
+.btn--lg { padding: 13px 24px; font-size: 1rem; }
+
+.btn--primary {
+  background: var(--gradient);
+  background-size: 160% 100%;
+  // O gradiente começa na borda (não dentro dela) e não se repete.
+  // Sem isso, a borda transparente de 1px mostrava o fim do "tile" anterior: um fio ciano à esquerda.
+  background-origin: border-box;
+  background-repeat: no-repeat;
+  color: #fff;
+  box-shadow: 0 8px 24px -10px #6366f1;
+  &:hover { background-position: 100% 0; box-shadow: 0 14px 32px -10px #6366f1; }
+}
+
+.btn--ghost {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text);
+  &:hover { border-color: color-mix(in srgb, #6366f1 50%, var(--border)); }
+}
+
+.btn--light {
+  background: #fff;
+  color: #1e1b4b;
+  &:hover { box-shadow: 0 12px 30px -10px rgb(0 0 0 / 0.35); }
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  --icon-size: 18px;
+
+  &:hover { background: var(--surface-2); transform: translateY(-1px); }
+}
+
+/* =========================================================
+   Cards, tags e pills
+   ========================================================= */
+.card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 22px;
+}
+
+// Efeito "lanterna" (diretiva appSpotlight): brilho que segue o mouse + borda em gradiente.
+.spotlight {
+  isolation: isolate;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0;
+    background: radial-gradient(420px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgb(99 102 241 / 0.14), transparent 45%);
+    transition: opacity 0.3s;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, #6366f1 45%, var(--border));
+    box-shadow: var(--shadow);
+    &::before { opacity: 1; }
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+}
+
+.pill {
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pill--accent { border-color: transparent; background: var(--gradient); color: #fff; }
+
+/* =========================================================
+   Footer
+   ========================================================= */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  font-size: 0.9rem;
+}
+
+.footer__inner { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+/* =========================================================
+   Animação de entrada (diretiva appReveal)
+   Só esconde quando há JS (.js no <html>) — sem JS o conteúdo aparece normal.
+   ========================================================= */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js .reveal.is-visible { opacity: 1; transform: none; }
+
+/* =========================================================
+   Transição entre páginas (View Transitions API)
+   O header tem view-transition-name próprio, então fica parado; só a página anima.
+   ========================================================= */
+::view-transition-old(page) { animation: page-out 0.22s cubic-bezier(0.4, 0, 1, 1) both; }
+::view-transition-new(page) { animation: page-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+@keyframes page-out { to { opacity: 0; transform: translateY(-12px) scale(0.985); filter: blur(4px); } }
+@keyframes page-in { from { opacity: 0; transform: translateY(24px) scale(0.985); filter: blur(4px); } }
+
+// Troca de tema: tudo vira uma imagem só (root) e o círculo revela o novo tema.
+.theme-transition {
+  .header, .page { view-transition-name: none; }
+  &::view-transition-old(root),
+  &::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+}
+
+/* =========================================================
+   Acessibilidade: respeita quem pediu menos movimento no sistema
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+  .js .reveal { opacity: 1; transform: none; }
+}

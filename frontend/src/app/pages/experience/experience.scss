@@ -1,0 +1,118 @@
+/* ---------- Timeline ---------- */
+.timeline {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  // linha vertical com gradiente
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 21px;
+    width: 2px;
+    background: linear-gradient(to bottom, #6366f1, #22d3ee 40%, var(--border));
+  }
+}
+
+.timeline__item {
+  position: relative;
+  padding-left: 68px;
+  & + & { margin-top: 20px; }
+}
+
+.timeline__dot {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+  --icon-size: 18px;
+
+  &.current {
+    border: none;
+    background: var(--gradient);
+    color: #fff;
+    box-shadow: 0 0 0 6px color-mix(in srgb, #6366f1 18%, transparent);
+  }
+}
+
+.job { padding: 24px 28px; transition: border-color 0.25s, transform 0.25s; }
+.job:hover { transform: translateX(4px); }
+
+.job__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.job__role { margin: 0; font-size: 1.15rem; }
+.job__company { margin: 4px 0 0; font-weight: 600; }
+
+.job__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.job__list {
+  margin: 16px 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  li { margin-bottom: 6px; }
+  li::marker { color: #6366f1; }
+}
+
+/* ---------- Skills ---------- */
+.skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  h3 { margin: 0 0 12px; font-size: 1rem; }
+}
+
+/* ---------- Formação ---------- */
+.edu {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  margin-top: 64px;
+}
+
+.edu__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+}
+
+.edu__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  li {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 760px) {
+  .timeline::before { left: 17px; }
+  .timeline__item { padding-left: 52px; }
+  .timeline__dot { width: 36px; height: 36px; --icon-size: 16px; }
+  .job { padding: 20px; }
+  .job__meta { align-items: flex-start; }
+  .edu { grid-template-columns: 1fr; }
+}

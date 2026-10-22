@@ -11,3 +11,10 @@ explicacao.md
 # Java
 **/target/
 **/build/
+
+# IDEs
+.idea/
+.vscode/
+
+# Lixo de npm na raiz (o projeto Node fica em frontend/)
+/package-lock.json
